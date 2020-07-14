@@ -89,7 +89,7 @@ main (int argc, char *argv[])
    * element with pay%d names will be a stream */
   factory = gst_rtsp_media_factory_new ();
   gst_rtsp_media_factory_set_launch (factory, "( "
-      "videotestsrc ! video/x-raw,width=640,height=480,framerate=15/1 ! "
+      "v4l2src device=/dev/video0 ! video/x-raw,width=640,height=480,framerate=15/1 ! "
       "x264enc ! rtph264pay name=pay0 pt=96 "
       "audiotestsrc ! audio/x-raw,rate=8000 ! "
       "alawenc ! rtppcmapay name=pay1 pt=97 " ")");
