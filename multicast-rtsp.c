@@ -83,16 +83,26 @@ main (int argc, char *argv[])
    * that be used to map uri mount points to media factories */
   mounts = gst_rtsp_server_get_mount_points (server);
 
-  /* make a media factory for a test stream. The default media factory can use
+  /* make a media factory for a video stream. The default media factory can use
    * gst-launch syntax to create pipelines. 
    * any launch line works as long as it contains elements named pay%d. Each
    * element with pay%d names will be a stream */
   factory = gst_rtsp_media_factory_new ();
+
   gst_rtsp_media_factory_set_launch (factory, "( "
-      "v4l2src device=/dev/video0 ! video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! videorate ! video/x-raw,framerate=5/1 ! videoconvert ! video/x-raw,format=I420 ! "
-      "x264enc ! rtph264pay name=pay0 pt=96 "
-      "audiotestsrc ! audio/x-raw,rate=8000 ! "
-      "alawenc ! rtppcmapay name=pay1 pt=97 " ")");
+      "v4l2src device=/dev/video0 ! "
+      "video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! "
+      "videorate ! video/x-raw,framerate=5/1 ! videoconvert ! "
+      "video/x-raw,format=I420 ! queue ! "
+      "omxh264enc target-bitrate=1000000 control-rate=1 ! "
+      "video/x-h264, profile=(string)high, level=(string)4 ! "
+      "rtph264pay name=pay0 pt=96 " ")");
+
+//   gst_rtsp_media_factory_set_launch (factory, "( "
+//       "v4l2src device=/dev/video0 ! "
+//       "video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! "
+//       "videorate ! video/x-raw,framerate=5/1 ! videoconvert ! "
+//       "video/x-raw,format=BGR ! rtpvrawpay name=pay0 pt=96 " ")");
 
   gst_rtsp_media_factory_set_shared (factory, TRUE);
 
@@ -113,6 +123,7 @@ main (int argc, char *argv[])
 
   /* start serving */
   g_print ("stream ready at rtsp://0.0.0.0:8554/video\n");
+
   g_main_loop_run (loop);
 
   return 0;
