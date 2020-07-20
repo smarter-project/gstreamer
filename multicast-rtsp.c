@@ -69,7 +69,14 @@ main (int argc, char *argv[])
   GMainLoop *loop;
   GstRTSPServer *server;
   GstRTSPMountPoints *mounts;
-  GstRTSPMediaFactory *factory;
+  GstRTSPMediaFactory *factory1enc;
+  GstRTSPMediaFactory *factory5enc;
+  GstRTSPMediaFactory *factory10enc;
+  GstRTSPMediaFactory *factory30enc;
+  GstRTSPMediaFactory *factory1raw;
+  GstRTSPMediaFactory *factory5raw;
+  GstRTSPMediaFactory *factory10raw;
+  GstRTSPMediaFactory *factory30raw;
 
   gst_init (&argc, &argv);
 
@@ -87,30 +94,87 @@ main (int argc, char *argv[])
    * gst-launch syntax to create pipelines. 
    * any launch line works as long as it contains elements named pay%d. Each
    * element with pay%d names will be a stream */
-  factory = gst_rtsp_media_factory_new ();
+  factory1enc = gst_rtsp_media_factory_new ();
+  factory5enc = gst_rtsp_media_factory_new ();
+  factory10enc = gst_rtsp_media_factory_new ();
+  factory30enc = gst_rtsp_media_factory_new ();
+  factory1raw = gst_rtsp_media_factory_new ();
+  factory5raw = gst_rtsp_media_factory_new ();
+  factory10raw = gst_rtsp_media_factory_new ();
+  factory30raw = gst_rtsp_media_factory_new ();
 
-  gst_rtsp_media_factory_set_launch (factory, "( "
-      "v4l2src device=/dev/video0 ! "
-      "video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! "
-      "videorate ! video/x-raw,framerate=5/1 ! videoconvert ! "
-      "video/x-raw,format=I420 ! queue ! "
-      "omxh264enc target-bitrate=1000000 control-rate=1 ! "
-      "video/x-h264, profile=(string)high, level=(string)4 ! "
+  gst_rtsp_media_factory_set_launch (factory1enc, "( "
+      "shmsrc socket-path=/tmp/gstreamer/raw-1 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "queue ! omxh264enc target-bitrate=1000000 control-rate=1 ! video/x-h264,profile=(string)high,level=(string)4 ! "
       "rtph264pay name=pay0 pt=96 " ")");
 
-//   gst_rtsp_media_factory_set_launch (factory, "( "
-//       "v4l2src device=/dev/video0 ! "
-//       "video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! "
-//       "videorate ! video/x-raw,framerate=5/1 ! videoconvert ! "
-//       "video/x-raw,format=BGR ! rtpvrawpay name=pay0 pt=96 " ")");
+  gst_rtsp_media_factory_set_launch (factory5enc, "( "
+      "shmsrc socket-path=/tmp/gstreamer/raw-5 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "queue ! omxh264enc target-bitrate=1000000 control-rate=1 ! video/x-h264,profile=(string)high,level=(string)4 ! "
+      "rtph264pay name=pay0 pt=96 " ")");
 
-  gst_rtsp_media_factory_set_shared (factory, TRUE);
+  gst_rtsp_media_factory_set_launch (factory10enc, "( "
+      "shmsrc socket-path=/tmp/gstreamer/raw-10 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "queue ! omxh264enc target-bitrate=1000000 control-rate=1 ! video/x-h264,profile=(string)high,level=(string)4 ! "
+      "rtph264pay name=pay0 pt=96 " ")");
 
-  g_signal_connect (factory, "media-constructed", (GCallback)
+  gst_rtsp_media_factory_set_launch (factory30enc, "( "
+      "shmsrc socket-path=/tmp/gstreamer/raw-30 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "queue ! omxh264enc target-bitrate=1000000 control-rate=1 ! video/x-h264,profile=(string)high,level=(string)4 ! "
+      "rtph264pay name=pay0 pt=96 " ")");
+
+  gst_rtsp_media_factory_set_launch (factory1raw, "( "
+      "shmsrc socket-path=/tmp/gstreamer/raw-1 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "rtpvrawpay name=pay0 pt=96 " ")");
+
+  gst_rtsp_media_factory_set_launch (factory5raw, "( "
+      "shmsrc socket-path=/tmp/gstreamer/raw-5 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "rtpvrawpay name=pay0 pt=96 " ")");
+
+  gst_rtsp_media_factory_set_launch (factory10raw, "( "
+      "shmsrc socket-path=/tmp/gstreamer/raw-10 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "rtpvrawpay name=pay0 pt=96 " ")");
+
+  gst_rtsp_media_factory_set_launch (factory30raw, "( "
+      "shmsrc socket-path=/tmp/gstreamer/raw-30 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "rtpvrawpay name=pay0 pt=96 " ")");
+
+  gst_rtsp_media_factory_set_shared (factory1enc, TRUE);
+  gst_rtsp_media_factory_set_shared (factory5enc, TRUE);
+  gst_rtsp_media_factory_set_shared (factory10enc, TRUE);
+  gst_rtsp_media_factory_set_shared (factory30enc, TRUE);
+  gst_rtsp_media_factory_set_shared (factory1raw, TRUE);
+  gst_rtsp_media_factory_set_shared (factory5raw, TRUE);
+  gst_rtsp_media_factory_set_shared (factory10raw, TRUE);
+  gst_rtsp_media_factory_set_shared (factory30raw, TRUE);
+
+  g_signal_connect (factory1enc, "media-constructed", (GCallback)
+      media_constructed, NULL);
+  g_signal_connect (factory5enc, "media-constructed", (GCallback)
+      media_constructed, NULL);
+  g_signal_connect (factory10enc, "media-constructed", (GCallback)
+      media_constructed, NULL);
+  g_signal_connect (factory30enc, "media-constructed", (GCallback)
+      media_constructed, NULL);
+  g_signal_connect (factory1raw, "media-constructed", (GCallback)
+      media_constructed, NULL);
+  g_signal_connect (factory5raw, "media-constructed", (GCallback)
+      media_constructed, NULL);
+  g_signal_connect (factory10raw, "media-constructed", (GCallback)
+      media_constructed, NULL);
+  g_signal_connect (factory30raw, "media-constructed", (GCallback)
       media_constructed, NULL);
 
   /* attach the test factory to the /video url */
-  gst_rtsp_mount_points_add_factory (mounts, "/video", factory);
+  gst_rtsp_mount_points_add_factory (mounts, "/video.h264.1", factory1enc);
+  gst_rtsp_mount_points_add_factory (mounts, "/video.h264.5", factory5enc);
+  gst_rtsp_mount_points_add_factory (mounts, "/video.h264.10", factory10enc);
+  gst_rtsp_mount_points_add_factory (mounts, "/video.h264.30", factory30enc);
+  gst_rtsp_mount_points_add_factory (mounts, "/video.raw.1", factory1raw);
+  gst_rtsp_mount_points_add_factory (mounts, "/video.raw.5", factory5raw);
+  gst_rtsp_mount_points_add_factory (mounts, "/video.raw.10", factory10raw);
+  gst_rtsp_mount_points_add_factory (mounts, "/video.raw.30", factory30raw);
+
 
   /* don't need the ref to the mapper anymore */
   g_object_unref (mounts);
@@ -122,7 +186,7 @@ main (int argc, char *argv[])
   g_timeout_add_seconds (2, (GSourceFunc) timeout, server);
 
   /* start serving */
-  g_print ("stream ready at rtsp://0.0.0.0:8554/video\n");
+  g_print ("stream ready at rtsp://0.0.0.0:8554/video.<proto>.<framerate>\n");
 
   g_main_loop_run (loop);
 
