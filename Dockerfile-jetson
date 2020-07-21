@@ -1,11 +1,11 @@
-FROM ubuntu:18.04
+FROM nvcr.io/nvidia/l4t-base:r32.4.3
 
-RUN apt update && apt install -yqq --no-install-recommends libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstrtspserver-1.0-dev gstreamer1.0-rtsp gstreamer1.0-omx
+RUN apt update && apt install -yqq --no-install-recommends libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstrtspserver-1.0-dev gstreamer1.0-rtsp
     
-COPY multicast-rtsp.c .
+COPY multicast-rtsp-jetson.c .
 
 RUN apt install -yqq build-essential && \
-    gcc -o multicast-rtsp-server multicast-rtsp.c `pkg-config --cflags --libs gstreamer-rtsp-server-1.0` && \
+    gcc -o multicast-rtsp-server multicast-rtsp-jetson.c `pkg-config --cflags --libs gstreamer-rtsp-server-1.0` && \
     apt purge -yqq build-essential && \
     rm -rf /var/lib/apt/lists/*
 
