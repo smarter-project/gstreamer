@@ -61,7 +61,7 @@ build:buildx-jetson:
     - docker buildx create --driver docker-container --use
     - docker buildx inspect --bootstrap
     - docker buildx ls
-    - docker buildx build --progress plain --pull -t ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-jetson --push .
+    - docker buildx build -f Dockerfile-jetson --progress plain --pull -t ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-jetson --push .
 
 build:buildx-rpi:
   extends: .build
@@ -73,4 +73,4 @@ build:buildx-rpi:
     - docker buildx create --driver docker-container --use
     - docker buildx inspect --bootstrap
     - docker buildx ls
-    - docker buildx build --progress plain --pull -t ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-rpi --push .
+    - docker buildx build -f Dockerfile-rpi --progress plain --pull -t ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-rpi --push .
