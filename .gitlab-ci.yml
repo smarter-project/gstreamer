@@ -1,6 +1,5 @@
 variables:
   CI_BUILD_IMAGE: "registry.gitlab.com/ericvh/docker-buildx-qemu"
-  CI_BUILDX_ARCHS: "linux/amd64,linux/arm64,linux/arm"
 
 .build:
   image: $CI_BUILD_IMAGE
@@ -26,26 +25,34 @@ variables:
       fi
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
 
-build:buildx-master:
+build:buildx-master-jetson:
   extends: .build
   only: 
     refs:
       - master
-    variables:
-      - $CI_BUILDX_ARCHS
   script:
     # Use docker-container driver to allow useful features (push/multi-platform)
     - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
     - docker buildx create --driver docker-container --use
     - docker buildx inspect --bootstrap
     - docker buildx ls
-    - docker buildx build --platform $CI_BUILDX_ARCHS --progress plain --pull -t "$CI_REGISTRY_IMAGE" --push .
+    - docker buildx build -f Dockerfile-jetson --progress plain --pull -t ${CI_REGISTRY_IMAGE}-jetson --push .
 
-build:buildx:
+build:buildx-master-rpi:
   extends: .build
-  only:
-    variables:
-      - $CI_BUILDX_ARCHS
+  only: 
+    refs:
+      - master
+  script:
+    # Use docker-container driver to allow useful features (push/multi-platform)
+    - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
+    - docker buildx create --driver docker-container --use
+    - docker buildx inspect --bootstrap
+    - docker buildx ls
+    - docker buildx build -f Dockerfile-rpi --progress plain --pull -t ${CI_REGISTRY_IMAGE}-rpi --push .
+
+build:buildx-jetson:
+  extends: .build
   except:
     refs:
        - master
@@ -54,4 +61,16 @@ build:buildx:
     - docker buildx create --driver docker-container --use
     - docker buildx inspect --bootstrap
     - docker buildx ls
-    - docker buildx build --platform $CI_BUILDX_ARCHS --progress plain --pull -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" --push .
+    - docker buildx build --progress plain --pull -t ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-jetson --push .
+
+build:buildx-rpi:
+  extends: .build
+  except:
+    refs:
+       - master
+  script:
+    - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
+    - docker buildx create --driver docker-container --use
+    - docker buildx inspect --bootstrap
+    - docker buildx ls
+    - docker buildx build --progress plain --pull -t ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-rpi --push .
