@@ -104,22 +104,22 @@ main (int argc, char *argv[])
   factory30raw = gst_rtsp_media_factory_new ();
 
   gst_rtsp_media_factory_set_launch (factory1enc, "( "
-      "shmsrc socket-path=/tmp/gstreamer/raw-1 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "shmsrc socket-path=/tmp/gstreamer/raw-1 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480,framerate=1/1 ! "
       "queue ! x264enc ! video/x-h264,profile=(string)high,level=(string)4 ! "
       "rtph264pay name=pay0 pt=96 " ")");
 
   gst_rtsp_media_factory_set_launch (factory5enc, "( "
-      "shmsrc socket-path=/tmp/gstreamer/raw-5 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "shmsrc socket-path=/tmp/gstreamer/raw-5 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480,framerate=5/1 ! "
       "queue ! x264enc ! video/x-h264,profile=(string)high,level=(string)4 ! "
       "rtph264pay name=pay0 pt=96 " ")");
 
   gst_rtsp_media_factory_set_launch (factory10enc, "( "
-      "shmsrc socket-path=/tmp/gstreamer/raw-10 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "shmsrc socket-path=/tmp/gstreamer/raw-10 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480,framerate=10/1 ! "
       "queue ! x264enc ! video/x-h264,profile=(string)high,level=(string)4 ! "
       "rtph264pay name=pay0 pt=96 " ")");
 
   gst_rtsp_media_factory_set_launch (factory30enc, "( "
-      "shmsrc socket-path=/tmp/gstreamer/raw-30 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480 ! "
+      "shmsrc socket-path=/tmp/gstreamer/raw-30 do-timestamp=true ! video/x-raw,format=I420,width=640,height=480,framerate=30/1 ! "
       "queue ! x264enc ! video/x-h264,profile=(string)high,level=(string)4 ! "
       "rtph264pay name=pay0 pt=96 " ")");
 
