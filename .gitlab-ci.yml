@@ -1,6 +1,10 @@
 variables:
   CI_BUILD_IMAGE: "registry.gitlab.com/ericvh/docker-buildx-qemu"
-  CI_BUILDX_ARCHS: "linux/amd64,linux/arm64,linux/arm"
+  CI_BUILDX_ARCHS: "linux/amd64,linux/arm64"
+  CI_DEFAULT_BRANCH: "main"
+  H264_GSTREAMER_PIPELINE_RPI: "queue ! omxh264enc target-bitrate=1000000 control-rate=1 ! video/x-h264,profile=(string)high,level=(string)4 "
+  H264_GSTREAMER_PIPELINE_JETSON: "nvvidconv ! video/x-raw(memory:NVMM),format=NV12,width=640,height=480 ! queue ! nvv4l2h264enc maxperf-enable=1 bitrate=8000000 "
+
 
 .build:
   image: $CI_BUILD_IMAGE
@@ -26,46 +30,41 @@ variables:
       fi
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
 
-build:buildx-master:
+.buildx_setup: &buildx_setup
+  # Use docker-container driver to allow useful features (push/multi-platform)
+  - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
+  - docker buildx create --driver docker-container --use
+  - docker buildx inspect --bootstrap
+  - docker buildx ls
+
+build:buildx-main:
   extends: .build
   only: 
     refs:
-      - master
+      - $CI_DEFAULT_BRANCH
     variables:
       - $CI_BUILDX_ARCHS
   script:
-    # Use docker-container driver to allow useful features (push/multi-platform)
-    - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
-    - docker buildx create --driver docker-container --use
-    - docker buildx inspect --bootstrap
-    - docker buildx ls
-    - docker buildx build -f Dockerfile-generic --platform $CI_BUILDX_ARCHS --progress plain --pull -t "$CI_REGISTRY_IMAGE" --push .
+    - *buildx_setup
+    - docker buildx build --platform $CI_BUILDX_ARCHS --progress plain --pull -t "$CI_REGISTRY_IMAGE" --push .
 
-build:buildx-master-jetson:
+build:buildx-main-jetson:
   extends: .build
   only: 
     refs:
-      - master
+      - $CI_DEFAULT_BRANCH
   script:
-    # Use docker-container driver to allow useful features (push/multi-platform)
-    - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
-    - docker buildx create --driver docker-container --use
-    - docker buildx inspect --bootstrap
-    - docker buildx ls
-    - docker buildx build -f Dockerfile-jetson --progress plain --pull -t ${CI_REGISTRY_IMAGE}-jetson --push .
+    - *buildx_setup
+    - docker buildx build --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-base:r32.7.2 --build-arg H264_GSTREAMER_PIPELINE=${H264_GSTREAMER_PIPELINE_JETSON} --progress plain --pull -t ${CI_REGISTRY_IMAGE}-jetson --push .
 
-build:buildx-master-rpi:
+build:buildx-main-rpi:
   extends: .build
   only: 
     refs:
-      - master
+      - $CI_DEFAULT_BRANCH
   script:
-    # Use docker-container driver to allow useful features (push/multi-platform)
-    - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
-    - docker buildx create --driver docker-container --use
-    - docker buildx inspect --bootstrap
-    - docker buildx ls
-    - docker buildx build -f Dockerfile-rpi --progress plain --pull -t ${CI_REGISTRY_IMAGE}-rpi --push .
+    - *buildx_setup
+    - docker buildx build --build-arg BASE_IMAGE=raspbian/stretch:041518 --build-arg H264_GSTREAMER_PIPELINE=${H264_GSTREAMER_PIPELINE_RPI} --progress plain --pull -t ${CI_REGISTRY_IMAGE}-rpi --push .
 
 build:buildx:
   extends: .build
@@ -74,34 +73,25 @@ build:buildx:
       - $CI_BUILDX_ARCHS
   except:
     refs:
-       - master
+       - $CI_DEFAULT_BRANCH
   script:
-    - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
-    - docker buildx create --driver docker-container --use
-    - docker buildx inspect --bootstrap
-    - docker buildx ls
-    - docker buildx build -f Dockerfile-generic --platform $CI_BUILDX_ARCHS --progress plain --pull -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" --push .
+    - *buildx_setup
+    - docker buildx build --platform $CI_BUILDX_ARCHS --progress plain --pull -t "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG" .
 
 build:buildx-jetson:
   extends: .build
   except:
     refs:
-       - master
+       - $CI_DEFAULT_BRANCH
   script:
-    - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
-    - docker buildx create --driver docker-container --use
-    - docker buildx inspect --bootstrap
-    - docker buildx ls
-    - docker buildx build -f Dockerfile-jetson --progress plain --pull -t ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-jetson --push .
+    - *buildx_setup
+    - docker buildx build --build-arg BASE_IMAGE=nvcr.io/nvidia/l4t-base:r32.7.2 --build-arg H264_GSTREAMER_PIPELINE=${H264_GSTREAMER_PIPELINE_JETSON} --progress plain --pull -t ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-jetson .
 
 build:buildx-rpi:
   extends: .build
   except:
     refs:
-       - master
+       - $CI_DEFAULT_BRANCH
   script:
-    - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
-    - docker buildx create --driver docker-container --use
-    - docker buildx inspect --bootstrap
-    - docker buildx ls
-    - docker buildx build -f Dockerfile-rpi --progress plain --pull -t ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-rpi --push .
+    - *buildx_setup
+    - docker buildx build --build-arg BASE_IMAGE=raspbian/stretch:041518 --build-arg H264_GSTREAMER_PIPELINE=${H264_GSTREAMER_PIPELINE_RPI} --progress plain --pull -t ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}-rpi .
