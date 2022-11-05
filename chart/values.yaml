@@ -5,7 +5,7 @@ application:
   appName: smarter-gstreamer
 
 image:
-  repository: registry.gitlab.com/arm-research/smarter/edge-workloads/gstreamer
+  repository: registry.gitlab.com/smarter-project/edge-workloads/gstreamer
   # @default -- chart.appVersion
   tag: ""
   pullPolicy: IfNotPresent
