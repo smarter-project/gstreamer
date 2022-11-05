@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Values.application.appName }}
+  namespace: {{ .Values.application.namespace }}
+  labels:
+    name: {{ .Values.application.appName }}
+spec:
+  selector:
+    matchLabels:
+      name: {{ .Values.application.appName }}
+  template:
+    metadata:
+      labels:
+        name: {{ .Values.application.appName }}
+    spec:
+      nodeSelector:
+        {{ .Values.application.appName }}: enabled
+      tolerations:
+      - key: "smarter.type"
+        operator: "Equal"
+        value: "edge"
+        effect: "NoSchedule"
+      hostname: {{ .Values.application.appName }}
+      containers:
+      - name: {{ .Values.application.appName }}-rtsp-server
+        ports:
+          - containerPort: 8554
+            hostPort: 8554
+        image: {{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: GST_DEBUG
+          value: "3"
+        - name: VIDEO_ID
+          value: {{ .Values.configuration.video_id }}
+        resources:
+          limits:
+            smarter-devices/video{{ .Values.configuration.video_id }}: 1
+          requests:
+            smarter-devices/video{{ .Values.configuration.video_id }}: 1
+      terminationGracePeriodSeconds: 15

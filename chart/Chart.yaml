@@ -1,0 +1,27 @@
+apiVersion: v2
+name: smarter-gstreamer
+description: smarter-gstreamer chart for SMARTER edge devices
+home: https://gitlab.com/smarter-project/edge-workloads/gstreamer
+version: 0.0.1
+appVersion: v1.0.0
+kubeVersion: ">=1.16.0-0"
+keywords:
+  - kubernetes
+  - device
+  - triton
+  - gstreamer
+sources:
+  - https://gitlab.com/smarter-project/edge-workloads/gstreamer/chart
+
+annotations:
+  artifacthub.io/changes: |
+    - Fix template
+    - Add annotations
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/maintainers: |
+    - name: Alexandre Ferreira
+      email: alexandref75@gmail.com
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/signKey: |
+    fingerprint: 82AD709FEC4ECA4C84B093889BDC9DE410CFC23B
+    url: https://keybase.io/alexandref75/pgp_keys.asc
