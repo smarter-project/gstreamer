@@ -3,7 +3,7 @@ name: smarter-gstreamer
 description: smarter-gstreamer chart for SMARTER edge devices
 home: https://gitlab.com/smarter-project/edge-workloads/gstreamer
 version: 0.0.1
-appVersion: v1.0.0
+appVersion: 0.0.1
 kubeVersion: ">=1.16.0-0"
 keywords:
   - kubernetes
