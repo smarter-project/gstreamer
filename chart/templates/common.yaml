@@ -33,7 +33,7 @@ spec:
         - name: GST_DEBUG
           value: "3"
         - name: VIDEO_ID
-          value: {{ .Values.configuration.video_id }}
+          value: {{ .Values.configuration.video_id | quote }}
         resources:
           limits:
             smarter-devices/video{{ .Values.configuration.video_id }}: 1
