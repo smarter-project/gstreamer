@@ -15,7 +15,7 @@ RUN apt update && \
         gstreamer1.0-tools \
         libgstrtspserver-1.0-dev \
         gstreamer1.0-rtsp \
-        gstreamer1.0-omx \
+        gstreamer1.0-omx-rpi \
         supervisor; \
         do apt install -yqq --no-install-recommends $i || true; \
     done && \
