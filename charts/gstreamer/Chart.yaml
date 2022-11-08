@@ -2,7 +2,7 @@ apiVersion: v2
 name: smarter-gstreamer
 description: smarter-gstreamer chart for SMARTER edge devices
 home: https://getsmarter.io
-version: 0.0.3
+version: 0.0.4
 appVersion: v1.0.2
 kubeVersion: ">=1.16.0-0"
 keywords:

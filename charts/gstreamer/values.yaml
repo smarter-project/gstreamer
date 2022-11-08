@@ -5,7 +5,7 @@ application:
   appName: smarter-gstreamer
 
 image:
-  repository: ghcr.io/smaerter-project/gstreamer
+  repository: ghcr.io/smarter-project/gstreamer
   # @default -- chart.appVersion
   tag: ""
   pullPolicy: IfNotPresent
