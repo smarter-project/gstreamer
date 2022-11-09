@@ -116,7 +116,7 @@ jobs:
           context: .
           build-args: |
             BASE_IMAGE=nvcr.io/nvidia/l4t-base:r32.7.1
-            H264_GSTREAMER_PIPELINE="nvvidconv ! video/x-raw(memory:NVMM),format=NV12,width=640,height=480 ! queue ! nvv4l2h264enc maxperf-enable=1 bitrate=8000000 "
+            H264_GSTREAMER_PIPELINE=nvvidconv\ !\ video/x-raw(memory:NVMM),format=NV12,width=640,height=480\ !\ queue\ !\ nvv4l2h264enc\ maxperf-enable=1\ bitrate=8000000
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-jetson.outputs.tags }}
           labels: ${{ steps.meta-jetson.outputs.labels }}

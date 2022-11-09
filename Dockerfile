@@ -24,10 +24,11 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 # Compile rtsp server
-ARG H264_GSTREAMER_PIPELINE="queue ! x264enc tune=zerolatency"
+ARG H264_GSTREAMER_PIPELINE="queue ! x264enc ! tune=zerolatency"
 COPY multicast-rtsp.c .
 RUN apt update && \
     apt install -yqq --no-install-recommends gcc && \
+    gcc -dM -E -DH264_GSTREAMER_PIPELINE="\"${H264_GSTREAMER_PIPELINE}\"" multicast-rtsp.c `pkg-config --cflags --libs gstreamer-rtsp-server-1.0` - < /dev/null && \
     gcc -O2 -o multicast-rtsp-server -DH264_GSTREAMER_PIPELINE="\"${H264_GSTREAMER_PIPELINE}\"" multicast-rtsp.c `pkg-config --cflags --libs gstreamer-rtsp-server-1.0` && \
     chmod +x multicast-rtsp-server && \
     cp multicast-rtsp-server /usr/local/bin && \
