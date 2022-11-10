@@ -19,7 +19,11 @@
 
 #include <gst/gst.h>
 #include <gst/rtsp-server/rtsp-server.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+char rtp[] = " ! rtph264pay name=pay0 pt=96";
 
 static gboolean timeout(GstRTSPServer *server) {
   GstRTSPSessionPool *pool;
@@ -59,7 +63,26 @@ static void media_constructed(GstRTSPMediaFactory *factory,
   }
 }
 
+char *get_h264_pipeline(char *h264_gstreamer_pipeline, int framerate) {
+  char *pipeline = malloc(1000);
+  snprintf(pipeline, 1000,
+           "shmsrc socket-path=/tmp/raw-%1$d is-live=1 do-timestamp=true ! "
+           "video/x-raw,format=I420,width=640,height=480,framerate=%1$d/1 ! ",
+           framerate);
+  strcat(pipeline, h264_gstreamer_pipeline);
+  strcat(pipeline, rtp);
+  return pipeline;
+}
+
 int main(int argc, char *argv[]) {
+  char *h264_gstreamer_pipeline = getenv("H264_GSTREAMER_PIPELINE");
+  /* check pipeline length for encode not too long*/
+  if (strlen(h264_gstreamer_pipeline) > 800) {
+    g_print("H264 encode pipline: %s longer than max len 800\n",
+            h264_gstreamer_pipeline);
+    return -1;
+  }
+
   GMainLoop *loop;
   GstRTSPServer *server;
   GstRTSPMountPoints *mounts;
@@ -89,30 +112,17 @@ int main(int argc, char *argv[]) {
   GstRTSPMediaFactory *factory10raw = gst_rtsp_media_factory_new();
   GstRTSPMediaFactory *factory30raw = gst_rtsp_media_factory_new();
 
-#define H264_1                                                                 \
-  "shmsrc socket-path=/tmp/raw-1 is-live=1 do-timestamp=true ! "             \
-  "video/x-raw,format=I420,width=640,height=480,framerate=1/1 "                \
-  "! " H264_GSTREAMER_PIPELINE " ! rtph264pay name=pay0 pt=96"
-#define H264_5                                                                 \
-  "shmsrc socket-path=/tmp/raw-5 is-live=1 do-timestamp=true ! "             \
-  "video/x-raw,format=I420,width=640,height=480,framerate=5/1 "                \
-  "! " H264_GSTREAMER_PIPELINE " ! rtph264pay name=pay0 pt=96"
-#define H264_10                                                                \
-  "shmsrc socket-path=/tmp/raw-10 is-live=1 do-timestamp=true ! "            \
-  "video/x-raw,format=I420,width=640,height=480,framerate=10/1 "               \
-  "! " H264_GSTREAMER_PIPELINE " ! rtph264pay name=pay0 pt=96"
-#define H264_30                                                                \
-  "shmsrc socket-path=/tmp/raw-30 is-live=1 do-timestamp=true ! "            \
-  "video/x-raw,format=I420,width=640,height=480,framerate=30/1 "               \
-  "! " H264_GSTREAMER_PIPELINE " ! rtph264pay name=pay0 pt=96"
+  gst_rtsp_media_factory_set_launch(
+      factory1enc, get_h264_pipeline(h264_gstreamer_pipeline, 1));
 
-  gst_rtsp_media_factory_set_launch(factory1enc, H264_1);
+  gst_rtsp_media_factory_set_launch(
+      factory5enc, get_h264_pipeline(h264_gstreamer_pipeline, 5));
 
-  gst_rtsp_media_factory_set_launch(factory5enc, H264_5);
+  gst_rtsp_media_factory_set_launch(
+      factory10enc, get_h264_pipeline(h264_gstreamer_pipeline, 10));
 
-  gst_rtsp_media_factory_set_launch(factory10enc, H264_10);
-
-  gst_rtsp_media_factory_set_launch(factory30enc, H264_30);
+  gst_rtsp_media_factory_set_launch(
+      factory30enc, get_h264_pipeline(h264_gstreamer_pipeline, 30));
 
   gst_rtsp_media_factory_set_launch(
       factory1raw, "shmsrc socket-path=/tmp/raw-1 do-timestamp=true "
@@ -125,16 +135,14 @@ int main(int argc, char *argv[]) {
                    "rtpvrawpay name=pay0 pt=96");
 
   gst_rtsp_media_factory_set_launch(
-      factory10raw,
-      "shmsrc socket-path=/tmp/raw-10 do-timestamp=true ! "
-      "video/x-raw,format=I420,width=640,height=480 ! "
-      "rtpvrawpay name=pay0 pt=96");
+      factory10raw, "shmsrc socket-path=/tmp/raw-10 do-timestamp=true ! "
+                    "video/x-raw,format=I420,width=640,height=480 ! "
+                    "rtpvrawpay name=pay0 pt=96");
 
   gst_rtsp_media_factory_set_launch(
-      factory30raw,
-      "shmsrc socket-path=/tmp/raw-30 do-timestamp=true ! "
-      "video/x-raw,format=I420,width=640,height=480 ! "
-      "rtpvrawpay name=pay0 pt=96");
+      factory30raw, "shmsrc socket-path=/tmp/raw-30 do-timestamp=true ! "
+                    "video/x-raw,format=I420,width=640,height=480 ! "
+                    "rtpvrawpay name=pay0 pt=96");
 
   gst_rtsp_media_factory_set_shared(factory1enc, TRUE);
   gst_rtsp_media_factory_set_shared(factory5enc, TRUE);

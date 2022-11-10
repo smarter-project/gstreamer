@@ -115,8 +115,8 @@ jobs:
           platforms: linux/arm64
           context: .
           build-args: |
-            BASE_IMAGE=nvcr.io/nvidia/l4t-base:r32.7.1
-            H264_GSTREAMER_PIPELINE=nvvidconv\ !\ video/x-raw(memory:NVMM),format=NV12,width=640,height=480\ !\ queue\ !\ nvv4l2h264enc\ maxperf-enable=1\ bitrate=8000000
+            "BASE_IMAGE=nvcr.io/nvidia/l4t-base:r32.7.1"
+            "H264_GSTREAMER_PIPELINE=nvvidconv ! video/x-raw(memory:NVMM),format=NV12,width=640,height=480 ! queue ! nvv4l2h264enc maxperf-enable=1 bitrate=8000000"
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-jetson.outputs.tags }}
           labels: ${{ steps.meta-jetson.outputs.labels }}
@@ -132,8 +132,9 @@ jobs:
           platforms: linux/arm/v7
           context: .
           build-args: |
-            BASE_IMAGE=balenalib/raspberry-pi:buster-20220112
-            H264_GSTREAMER_PIPELINE="queue ! omxh264enc target-bitrate=1000000 control-rate=1 ! video/x-h264,profile=(string)high,level=(string)4 "
+            "BASE_IMAGE=balenalib/raspberry-pi:buster-20220112"
+            "H264_GSTREAMER_PIPELINE=queue ! omxh264enc target-bitrate=1000000 control-rate=1 ! video/x-h264,profile=(string)high,level=(string)4"
+            "EXTRA_PACKAGES=gstreamer1.0-omx"
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-rpi.outputs.tags }}
           labels: ${{ steps.meta-rpi.outputs.labels }}
