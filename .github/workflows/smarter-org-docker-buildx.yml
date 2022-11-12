@@ -28,7 +28,7 @@ jobs:
   build-rpi:
     uses: smarter-project/reusable-workflows/.github/workflows/smarter-org-docker-buildx.yml@main
     with:
-      platform: "linux/arm/v7"
+      platforms: "linux/arm/v7"
       suffix: "-rpi"
       build_args: |
         "BASE_IMAGE=balenalib/raspberry-pi:buster-20220112"
@@ -37,7 +37,7 @@ jobs:
   build-jetson:
     uses: smarter-project/reusable-workflows/.github/workflows/smarter-org-docker-buildx.yml@main
     with:
-      platform: "linux/arm64"
+      platforms: "linux/arm64"
       suffix: "-jetson"
       build_args: |
         "BASE_IMAGE=nvcr.io/nvidia/l4t-base:r32.7.1"
