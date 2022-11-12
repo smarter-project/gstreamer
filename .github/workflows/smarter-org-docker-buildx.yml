@@ -16,7 +16,29 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build-generic:
     uses: smarter-project/reusable-workflows/.github/workflows/smarter-org-docker-buildx.yml@main
-  
+  build-rpi:
+    uses: smarter-project/reusable-workflows/.github/workflows/smarter-org-docker-buildx.yml@main
+    with:
+      platform: "linux/arm/v7"
+      suffix: "-rpi"
+      build_args: |
+        "BASE_IMAGE=balenalib/raspberry-pi:buster-20220112"
+        "H264_GSTREAMER_PIPELINE=queue ! omxh264enc target-bitrate=1000000 control-rate=1 ! video/x-h264,profile=(string)high,level=(string)4"
+        "EXTRA_PACKAGES=gstreamer1.0-omx"
+  build-jetson:
+    uses: smarter-project/reusable-workflows/.github/workflows/smarter-org-docker-buildx.yml@main
+    with:
+      platform: "linux/arm64"
+      suffix: "-jetson"
+      build_args: |
+        "BASE_IMAGE=nvcr.io/nvidia/l4t-base:r32.7.1"
+        "H264_GSTREAMER_PIPELINE=nvvidconv ! video/x-raw(memory:NVMM),format=NV12,width=640,height=480 ! queue ! nvv4l2h264enc maxperf-enable=1 bitrate=8000000"
