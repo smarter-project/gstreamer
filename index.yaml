@@ -15,6 +15,37 @@ entries:
         url: https://smarter-project.github.io/documentation/pgp_keys.asc
     apiVersion: v2
     appVersion: v1.0.2
+    created: "2022-11-16T21:11:22.03712202Z"
+    description: smarter-gstreamer chart for SMARTER edge devices
+    digest: bde6a9a9604c201493aedef60bcc004b48cd539122170d0c5f1ee57ab3bcf2dc
+    home: https://getsmarter.io
+    icon: https://github.com/smarter-project/documentation/raw/main/ARM1636_Project_Logo_ST2_RGB_V1.png
+    keywords:
+    - kubernetes
+    - device
+    - triton
+    - gstreamer
+    kubeVersion: '>=1.16.0-0'
+    name: smarter-gstreamer
+    sources:
+    - https://github.com/smarter-project/gstreamer
+    urls:
+    - https://github.com/smarter-project/gstreamer/releases/download/smarter-gstreamer-0.0.5/smarter-gstreamer-0.0.5.tgz
+    version: 0.0.5
+  - annotations:
+      artifacthub.io/changes: |
+        - Fix template
+        - Add annotations
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/maintainers: |
+        - name: Alexandre Ferreira
+          email: alexandref75@gmail.com
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/signKey: |
+        fingerprint: 71EDA4E3D652DC73EB09E3A5387D298C169CF24E
+        url: https://smarter-project.github.io/documentation/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v1.0.2
     created: "2022-11-08T17:38:15.391201932Z"
     description: smarter-gstreamer chart for SMARTER edge devices
     digest: 2db315aaaf44ced9d14ffdb35458f1e0b672677d433898a17470a6199357eada
@@ -94,4 +125,4 @@ entries:
     urls:
     - https://github.com/smarter-project/gstreamer/releases/download/smarter-gstreamer-0.0.2/smarter-gstreamer-0.0.2.tgz
     version: 0.0.2
-generated: "2022-11-08T17:38:15.391227732Z"
+generated: "2022-11-16T21:11:22.037468522Z"
